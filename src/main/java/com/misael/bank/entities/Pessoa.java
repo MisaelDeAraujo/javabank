@@ -6,27 +6,28 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "transferencia_tb")
+@Table(name = "person_tb")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class Transferencia {
+public class Pessoa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column
+    private String nomeCompleto;
+    @Column
+    private String cpf;
+    @Column
+    private String email;
 
-    private Double valor;
+    @OneToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "conta_id")
+    private Conta conta;
 
-    @ManyToOne
-    private Conta depositante;
-    @ManyToOne
-    private Conta recebedor;
 
-    private LocalDateTime localDateTime;
 
 }

@@ -1,16 +1,15 @@
 package com.misael.bank.services;
 
 import com.misael.bank.entities.Chave;
-import com.misael.bank.entities.Person;
+import com.misael.bank.entities.Conta;
 import com.misael.bank.entities.dto.ChaveRequestDto;
 import com.misael.bank.entities.dto.ChaveResponseDto;
-import com.misael.bank.exceptions.UsuarioNaoEncontradoException;
+import com.misael.bank.exceptions.PessoaNaoEncontradaException;
 import com.misael.bank.repositories.ChaveRepository;
-import com.misael.bank.repositories.PersonRepository;
+import com.misael.bank.repositories.ContaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,35 +20,36 @@ public class ChaveService {
     private ChaveRepository chaveRepository;
 
     @Autowired
-    private PersonRepository personRepository;
+    private ContaRepository contaRepository;
+
 
     public ChaveResponseDto saveChave(ChaveRequestDto dto){
-        Optional<Person> findPerson = personRepository.findById(dto.personId());
+        Optional<Conta> findByNumeroConta = contaRepository.findByNumeroConta(dto.numeroConta());
+        Optional<Conta> findByNumeroAgencia = contaRepository.findByNumeroAgencia(dto.numeroAgencia());
 
-        if(findPerson.isPresent()){
-            Person person = findPerson.get();
+        if(findByNumeroAgencia.isPresent() && findByNumeroConta.isPresent()){
+            Conta contaExistente = findByNumeroConta.get();
 
-            person.getChaves().add(dto.chave());
-
-            List<String> listaAtualizada = person.getChaves();
-
-            person.setChaves(listaAtualizada);
-
+            //criar chave
             Chave chave = Chave.builder()
                     .chave(dto.chave())
-                    .person(person)
                     .build();
-
             chaveRepository.save(chave);
-            personRepository.save(person);
+
+            List<Chave> listaAtualizada = contaExistente.getChaves(); //pegar o que já tem em chaves
+            listaAtualizada.add(chave); //acrescentar chave nova
+
+            contaExistente.setChaves(listaAtualizada); // setar a lista em contaExistente
+
+            contaRepository.save(contaExistente);
 
             return ChaveResponseDto.builder()
                     .chave(dto.chave())
-                    .nomePessoa(person.getCompleteName())
+                    .nomePessoa(contaExistente.getPessoa().getNomeCompleto())
                     .build();
 
         }else{
-            throw new UsuarioNaoEncontradoException();
+            throw new PessoaNaoEncontradaException();
         }
 
     }

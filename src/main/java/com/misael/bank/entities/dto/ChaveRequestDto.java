@@ -4,7 +4,8 @@ import lombok.Builder;
 
 @Builder
 public record ChaveRequestDto(
-        Integer personId,
+        Integer numeroAgencia,
+        Integer numeroConta,
         String chave
 ) {
 }

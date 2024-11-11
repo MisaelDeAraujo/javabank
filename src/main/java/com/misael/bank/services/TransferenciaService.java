@@ -1,19 +1,19 @@
 package com.misael.bank.services;
 
 import com.misael.bank.entities.Chave;
-import com.misael.bank.entities.Person;
+import com.misael.bank.entities.Pessoa;
 import com.misael.bank.entities.Transferencia;
 import com.misael.bank.entities.dto.TransferenciaRequestDto;
 import com.misael.bank.entities.dto.TransferenciaResponseDto;
-import com.misael.bank.exceptions.UsuarioNaoEncontradoException;
+import com.misael.bank.exceptions.PessoaNaoEncontradaException;
 import com.misael.bank.repositories.ChaveRepository;
-import com.misael.bank.repositories.PersonRepository;
+import com.misael.bank.repositories.ContaRepository;
+import com.misael.bank.repositories.PessoaRepository;
 import com.misael.bank.repositories.TransferenciaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,35 +24,40 @@ public class TransferenciaService {
     private TransferenciaRepository transferenciaRepository;
 
     @Autowired
-    private PersonRepository personRepository;
+    private ContaRepository contaRepository;
 
     @Autowired
     private ChaveRepository chaveRepository;
 
+    @Autowired
+    private PessoaRepository pessoaRepository; //TEPORARIO
 
 
     public TransferenciaResponseDto saveTransferencia(TransferenciaRequestDto dto){
 
-        Optional<Person> findPersonDepositante = personRepository.findById(dto.depositanteId());
-        Optional<Chave> findByChave = chaveRepository.findByChave(dto.chaveRecebedor());
-
-        if(findPersonDepositante.isPresent() && findByChave.isPresent()){
-            Person depositante = findPersonDepositante.get();
-            Chave chave = findByChave.get();
-            //verificar pela chave, qual pessoa está relacionada a.
-            Person recebedor =  chave.getPerson(); //READY?
+        Optional<Chave> findByChave = chaveRepository.findByChave(dto.chave_pix_ou_conta_agencia_recebedor());
+        Optional<Pessoa> findPessoaById = pessoaRepository.findById(dto.depositadorId());
 
 
-            depositante.setWallet(depositante.getWallet() - dto.valor());
-            personRepository.save(depositante);
+        if(findByChave.isPresent() && findPessoaById.isPresent()){
+            Chave chaveExistente = findByChave.get();
 
-            recebedor.setWallet(recebedor.getWallet() + dto.valor());
-            personRepository.save(recebedor);
+            Pessoa depositante = findPessoaById.get();
+
+            Pessoa recebedor = chaveExistente.getConta().getPessoa();
+
+
+
+            depositante.getConta().setSaldo(depositante.getConta().getSaldo() - dto.valor());
+            pessoaRepository.save(depositante);
+
+            recebedor.getConta().setSaldo(recebedor.getConta().getSaldo() + dto.valor());
+            pessoaRepository.save(recebedor);
 
             Transferencia transferencia = Transferencia.builder()
                     .valor(dto.valor())
-                    .depositante(depositante)
-                    .recebedor(recebedor)
+                    .depositante(depositante.getConta())
+                    .recebedor(recebedor.getConta())
                     .localDateTime(LocalDateTime.now())
                     .build();
 
@@ -60,18 +65,17 @@ public class TransferenciaService {
 
             TransferenciaResponseDto transferenciaResponseDto = TransferenciaResponseDto.builder()
                     .valor(dto.valor())
-                    .nomePagador(depositante.getCompleteName())
-                    .nomeRecebedor(recebedor.getCompleteName())
+                    .nomePagador(depositante.getNomeCompleto())
+                    .nomeRecebedor(recebedor.getNomeCompleto())
                     .localDateTime(transferencia.getLocalDateTime())
                     .build();
 
             return transferenciaResponseDto;
 
         }else{
-             throw new UsuarioNaoEncontradoException();
+             throw new PessoaNaoEncontradaException();
         }
     }
-
 
 
 

@@ -6,27 +6,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
-@Table(name = "person_tb")
+@Table(name = "deposito_tb")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class Person {
+public class Deposito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column
-    private String completeName;
-    @Column
-    private String cpf;
-    @Column
-    private Double wallet;
+    private Double valor;
 
-    private List<String> chaves;
+    private Integer agencia;
+
+    private Integer conta;
+
+    private String pix;
+
 
 }

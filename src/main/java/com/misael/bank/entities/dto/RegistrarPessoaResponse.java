@@ -3,9 +3,10 @@ package com.misael.bank.entities.dto;
 import lombok.Builder;
 
 @Builder
-public record PersonDto(
+public record RegistrarPessoaResponse(
         String completeName,
         String cpf,
-        Double wallet
+        String agencia,
+        String conta
 ) {
 }

@@ -6,27 +6,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "transferencia_tb")
+@Table(name = "extrato_tb")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class Transferencia {
+public class Extrato {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    private Double valor;
-
-    @ManyToOne
-    private Conta depositante;
-    @ManyToOne
-    private Conta recebedor;
-
-    private LocalDateTime localDateTime;
 
 }

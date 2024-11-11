@@ -5,7 +5,7 @@ import lombok.Builder;
 @Builder
 public record TransferenciaRequestDto(
         Double valor,
-        Integer depositanteId,
-        String chaveRecebedor
+        String chave_pix_ou_conta_agencia_recebedor,
+        Integer depositadorId
 ) {
 }

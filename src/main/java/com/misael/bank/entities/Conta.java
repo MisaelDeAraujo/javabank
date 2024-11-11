@@ -6,23 +6,32 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name = "chaves_tb")
+@Table(name = "conta_tb")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class Chave {
+public class Conta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String chave;
-
     @OneToOne(cascade = CascadeType.DETACH)
-    @JoinColumn(name = "conta_id")
-    private Conta conta;
+    @JoinColumn(name = "pessoa_id")
+    private Pessoa pessoa;
 
+    private Integer numeroConta;
+
+    private Integer numeroAgencia;
+
+    private Double saldo;
+
+    @OneToMany
+    private List<Chave> chaves = new ArrayList<>();
 
 }
